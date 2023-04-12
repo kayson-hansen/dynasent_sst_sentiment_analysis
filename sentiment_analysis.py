@@ -1,10 +1,3 @@
-# PLEASE MAKE SURE TO INCLUDE THE FOLLOWING BETWEEN THE START AND STOP COMMENTS:
-#   1) Textual description of your system.
-#   2) The code for your original system.
-# PLEASE MAKE SURE NOT TO DELETE OR EDIT THE START AND STOP COMMENTS
-
-# START COMMENT: Enter your system description in this cell.
-
 # Necessary imports
 from datasets import load_dataset
 import pandas as pd
@@ -27,13 +20,7 @@ weights_name = "prajjwal1/bert-small"
 tokenizer = AutoTokenizer.from_pretrained(weights_name)
 
 
-# Step 3: Potentially look for more datasets; if not, just use dynasent round 1 and 2 and sst
-dynasent_r1 = load_dataset("dynabench/dynasent", 'dynabench.dynasent.r1.all')
-dynasent_r2 = load_dataset("dynabench/dynasent", 'dynabench.dynasent.r2.all')
-sst = load_dataset("SetFit/sst5")
-
-
-# Step 4: Get representations of tokens
+# Step 3: Get representations of tokens
 def get_batch_token_ids(batch, tokenizer):
     """Map `batch` to a tensor of ids. The return
     value should meet the following specification:
@@ -61,7 +48,7 @@ def get_batch_token_ids(batch, tokenizer):
     return tokenizer.batch_encode_plus(batch, add_special_tokens=True, padding='max_length', truncation=True, max_length=max_length, return_tensors='pt', return_attention_mask=True)
 
 
-# Step 5: Define the graph for the neural network
+# Step 4: Define the graph for the neural network
 class BertClassifierModule(nn.Module):
     def __init__(self,
                  n_classes,
@@ -132,7 +119,7 @@ class BertClassifierModule(nn.Module):
         return self.classifier_layer(torch.mean(maskreps.last_hidden_state, dim=1))
 
 
-# Step 6: Use torch_deep_neural_classifier and fine tune it on the datasets
+# Step 5: Use torch_deep_neural_classifier and fine tune it on the datasets
 class OriginalClassifier(TorchDeepNeuralClassifier):
     def __init__(self, *args, **kwargs):
         self.tokenizer = tokenizer
@@ -158,7 +145,7 @@ class OriginalClassifier(TorchDeepNeuralClassifier):
         return dataset
 
 
-# Step 7: Create and train model
+# Step 6: Create and train model
 original_model = OriginalClassifier(
     hidden_activation=nn.ReLU(),
     eta=0.00005,          # Low learning rate for effective fine-tuning.
@@ -176,7 +163,7 @@ _ = original_model.fit(
 # colab environment resets
 torch.save(original_model.state_dict(), 'model.pth')
 
-# Step 8: Make predictions and assess model performance
+# Step 7: Make predictions and assess model performance
 saved_model = OriginalClassifier(
     hidden_activation=nn.ReLU(),
     eta=0.00005,          # Low learning rate for effective fine-tuning.
@@ -186,6 +173,23 @@ saved_model = OriginalClassifier(
     n_iter_no_change=5)   # params.
 
 saved_model.load_state_dict(torch.load('model.pth'))
+
+
+# Step 8: Import datasets and assess performance on validation sets
+dynasent_r1 = load_dataset("dynabench/dynasent", 'dynabench.dynasent.r1.all')
+dynasent_r2 = load_dataset("dynabench/dynasent", 'dynabench.dynasent.r2.all')
+sst = load_dataset("SetFit/sst5")
+
+
+def convert_sst_label(s):
+    return s.split(" ")[-1]
+
+
+for splitname in ('train', 'validation', 'test'):
+    dist = [convert_sst_label(s) for s in sst[splitname]['label_text']]
+    sst[splitname] = sst[splitname].add_column('gold_label', dist)
+    sst[splitname] = sst[splitname].add_column(
+        'sentence', sst[splitname]['text'])
 
 sst_preds = saved_model.predict(sst['validation']['sentence'])
 print(classification_report(sst['validation']
