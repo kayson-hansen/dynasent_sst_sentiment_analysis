@@ -21,7 +21,7 @@ from transformers import AutoTokenizer
 
 # Step 1: Choose pretrained model to use from hugging face
 # https://huggingface.co/prajjwal1/bert-small
-weights_name = "prajjwal1/bert-small"
+weights_name = "prajjwal1/bert-tiny"
 
 
 # Step 2: Use tokenizer that comes with model

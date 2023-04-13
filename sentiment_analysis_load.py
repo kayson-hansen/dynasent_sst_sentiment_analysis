@@ -2,7 +2,7 @@
 
 import torch
 import torch.nn as nn
-from model import OriginalClassifier, BertClassifierModule, dynasent_r1, dynasent_r2, sst
+from model import OriginalClassifier
 from datasets import load_dataset
 from sklearn.metrics import classification_report
 
