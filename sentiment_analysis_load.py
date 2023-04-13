@@ -39,11 +39,9 @@ saved_model = OriginalClassifier(
     early_stopping=True,  # Early-stopping
     n_iter_no_change=5)   # params.
 
-filename = 'sum_representation_model.pth'
+filename = 'sum_representation_model.pkl'
+saved_model.from_pickle(filename)
 
-saved_model.model = BertClassifierModule(
-    n_classes=3, hidden_activation=nn.ReLU())
-saved_model.model.load_state_dict(torch.load(filename))
 saved_model.build_dataset(X, y)
 saved_model.initialize()
 

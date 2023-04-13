@@ -44,8 +44,8 @@ _ = original_model.fit(X, y)
 
 
 # Step 4: Save trained model to a file
-filename = 'sum_representation_model.pth'
-torch.save(original_model.build_graph().state_dict(), filename)
+filename = 'sum_representation_model.pkl'
+original_model.to_pickle(filename)
 
 # Step 5: Assess model performance on test sets
 sst_preds = original_model.predict(sst['validation']['sentence'])
