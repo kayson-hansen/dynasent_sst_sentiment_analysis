@@ -1,3 +1,16 @@
+# Description: Our model is a transformer that's a fine-tuned version of the pre-trained BERT model
+# BERT-small (we tried larger BERT models, but they were too computationally expensive for our machines).
+# The hyperparameters used for fine-tuning include a learning rate of 5e-5, a maximum sequence length of 512,
+# a batch size of 8, and a maximum of 5 epochs with early stopping if the validation loss does not improve f
+# or 5 consecutive epochs. We included evaluation of the fine-tuned models using the classification_report function
+# from the sklearn library, which outputs precision, recall, and f1-scores for each class in the dataset.
+# Our model achieved a macro avg f1-score of 0.577 on the Stanford Sentiment Treebank dataset, a macro avg f1-score
+# of 0.716 on the DynaSent R1 dataset, and a macro avg f1-score of 0.589 on the DynaSent R2 dataset. These f1-scores
+# all outperformed the baseline model given by taking the output hidden states above the [CLS] token for each
+# sentence. We found representations for sentences by summing the output hidden states above each token. Our tokenization
+# scheme was the one included with BERT-small. Finally, we used the TorchDeepnNeuralClassifier class as the base class
+# for our model.
+
 import torch
 import torch.nn as nn
 from torch_deep_neural_classifier import TorchDeepNeuralClassifier
@@ -71,17 +84,6 @@ class BertClassifierModule(nn.Module):
         self.bert.train()
         self.hidden_activation = hidden_activation
         self.hidden_dim = self.bert.embeddings.word_embeddings.embedding_dim
-        # Add the new parameters here using `nn.Sequential`.
-        # We can define this layer as
-        #
-        #  h = f(cW1 + b_h)
-        #  y = hW2 + b_y
-        #
-        # where c is the final hidden state above the [CLS] token,
-        # W1 has dimensionality (self.hidden_dim, self.hidden_dim),
-        # W2 has dimensionality (self.hidden_dim, self.n_classes),
-        # and we rely on the PyTorch loss function to add apply a
-        # softmax to y.
         self.classifier_layer = nn.Sequential(
             nn.Linear(self.hidden_dim, self.hidden_dim, bias=True),
             self.hidden_activation,

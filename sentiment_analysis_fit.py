@@ -1,15 +1,3 @@
-# Description: Our model is a transformer that's a fine-tuned version of the pre-trained BERT model
-# BERT-small (we tried larger BERT models, but they were too computationally expensive for our machines).
-# The hyperparameters used for fine-tuning include a learning rate of 5e-5, a maximum sequence length of 512,
-# a batch size of 8, and a maximum of 5 epochs with early stopping if the validation loss does not improve f
-# or 5 consecutive epochs. The code also includes evaluation of the fine-tuned models using the
-# classification_report function from the sklearn library, which outputs precision, recall, and f1-scores for
-# each class in the dataset. Our model achieved a macro avg f1-score of 0.282 on the Stanford Sentiment Treebank
-# dataset, a macro avg f1-score of 0.284 on the DynaSent R1 dataset, and a macro avg f1-score of 0.272 on the
-# DynaSent R2 dataset. We found representations for sentences by averaging the embedding for the hidden layer
-# above each token. Our tokenization scheme was the one included with BERT-small. Finally, we used the
-# TorchDeepnNeuralClassifier class as the base class for our model.
-
 # This file is for fitting the pytorch model to the data.
 import torch
 import torch.nn as nn
