@@ -30,16 +30,7 @@ tokenizer = AutoTokenizer.from_pretrained(weights_name)
 
 # Step 3: Get representations of tokens
 def get_batch_token_ids(batch, tokenizer):
-    """Map `batch` to a tensor of ids. The return
-    value should meet the following specification:
-
-    1. The max length should be 512.
-    2. Examples longer than the max length should be truncated
-    3. Examples should be padded to the max length for the batch.
-    4. The special [CLS] should be added to the start and the special 
-       token [SEP] should be added to the end.
-    5. The attention mask should be returned
-    6. The return value of each component should be a tensor.    
+    """Map `batch` to a tensor of ids. 
 
     Parameters
     ----------
